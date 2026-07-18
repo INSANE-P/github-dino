@@ -1,32 +1,45 @@
-# React + TypeScript + Vite
+# github-dino
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+GitHub 활동 패턴을 분석해 8종의 공룡 중 나를 닮은 하나를 찾아주는 웹 앱입니다.
+Relay와 GitHub GraphQL API를 공부하면서 만든 프로젝트입니다.
 
-Currently, two official plugins are available:
+![결과 화면](docs/screenshot.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 어떻게 판정하나요
 
-## React Compiler
+최근 1년의 기여 데이터를 GitHub GraphQL API로 가져와 8가지 지표로 점수를 매기고, 가장 높은 공룡으로 판정합니다.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| 공룡 | 지표 |
+| --- | --- |
+| 파키케팔로사우루스 | 최장 연속 기여 스트릭 |
+| 티라노사우루스 | 받은 스타 수 |
+| 벨로시랩터 | 전체 기여 중 PR 비중 |
+| 트리케라톱스 | 1년 중 활동한 날의 비율 |
+| 브라키오사우루스 | 소유 저장소 수 |
+| 스테고사우루스 | 리뷰와 이슈 비중 |
+| 프테라노돈 | 주요 언어 수 |
+| 안킬로사우루스 | 하루 최대 기여 비중 |
 
-## Expanding the Oxlint configuration
+판정 결과는 카드로 저장하거나 `?u=아이디` 링크로 공유할 수 있습니다.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+<img src="docs/card-example.png" width="300" alt="카드 예시" />
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+공룡 캐릭터 8종은 전부 직접 그린 오리지널 SVG입니다.
+
+## 기술 스택
+
+- React 19 + TypeScript + Vite
+- Relay 21 + GitHub GraphQL API
+
+Relay의 선언적 데이터 페칭을 실제 API에 붙여보는 것이 목표였습니다. 쿼리를 컴포넌트 옆에 두고 relay-compiler가 생성한 타입으로 응답을 다루는 흐름을 연습했고, fragment 분리와 pagination은 다음 단계로 남겨뒀습니다.
+
+## 실행 방법
+
+```bash
+pnpm install
+cp .env.local.example .env.local   # VITE_GITHUB_TOKEN에 GitHub 토큰 입력
+pnpm relay
+pnpm dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+토큰은 public 데이터 읽기 권한만 있으면 됩니다.
