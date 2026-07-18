@@ -31,7 +31,7 @@ Relay와 GitHub GraphQL API를 공부하면서 만든 프로젝트입니다.
 - React 19 + TypeScript + Vite
 - Relay 21 + GitHub GraphQL API
 
-Relay의 선언적 데이터 페칭을 실제 API에 붙여보는 것이 목표였습니다. 쿼리를 컴포넌트 옆에 두고 relay-compiler가 생성한 타입으로 응답을 다루는 흐름을 연습했고, fragment 분리와 pagination은 다음 단계로 남겨뒀습니다.
+Relay의 선언적 데이터 페칭을 실제 API에 붙여보는 것이 목표였습니다. relay-compiler가 생성한 타입으로 응답을 다루는 것에서 시작해, 카드가 읽는 사용자 필드는 `DinoCard_user` fragment로 콜로케이션하고, 저장소 목록은 `usePaginationFragment`와 `@connection`으로 페이지네이션을 붙였습니다.
 
 ## 실행 방법
 
