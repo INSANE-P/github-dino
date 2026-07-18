@@ -1,22 +1,24 @@
 import { Component, Suspense, useState, type ReactNode } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import type { AppQuery } from "./__generated__/AppQuery.graphql";
+import { RepoList } from "./RepoList";
 import { judge, type ActivityStats } from "./dino/analyze";
 import { DINO_LIST } from "./dino/dinos";
 import { DinoIcon } from "./dino/DinoArt";
 import { DinoCardSVG, downloadCardPng } from "./dino/DinoCard";
 
 /*
-  TODO(학습 미션): 03장을 따라 DinoCard_user fragment로 분리해 보기
-  TODO(학습 미션): 05장을 따라 레포 목록을 usePaginationFragment로 바꿔 보기
+  판정 지표 계산에 필요한 필드는 여기서 직접 가져오고,
+  화면 조각(카드·저장소 목록)이 쓰는 필드는 각자의 fragment에 콜로케이션했다.
+  topRepos 별칭은 RepoList_user의 repositories(페이지네이션)와 인자가 달라 충돌을 피하기 위한 것.
 */
 const appQuery = graphql`
   query AppQuery($login: String!) {
     user(login: $login) {
       login
-      name
-      avatarUrl
-      repositories(
+      ...DinoCard_user
+      ...RepoList_user
+      topRepos: repositories(
         first: 20
         orderBy: { field: STARGAZERS, direction: DESC }
         ownerAffiliations: [OWNER]
@@ -74,7 +76,7 @@ function DinoResult({ login }: { login: string }) {
     c.totalIssueContributions +
     c.totalPullRequestContributions +
     c.totalPullRequestReviewContributions;
-  const repos = user.repositories.nodes?.filter((n) => n != null) ?? [];
+  const repos = user.topRepos.nodes?.filter((n) => n != null) ?? [];
 
   let longestStreak = 0;
   let streak = 0;
@@ -88,7 +90,7 @@ function DinoResult({ login }: { login: string }) {
     activeDayRatio: days.length > 0 ? days.filter((d) => d > 0).length / days.length : 0,
     longestStreak,
     totalStars: repos.reduce((sum, r) => sum + r.stargazerCount, 0),
-    repoCount: user.repositories.totalCount,
+    repoCount: user.topRepos.totalCount,
     languageCount: new Set(repos.map((r) => r.primaryLanguage?.name).filter(Boolean)).size,
     prShare: totalActions > 0 ? c.totalPullRequestContributions / totalActions : 0,
     reviewIssueShare:
@@ -114,7 +116,7 @@ function DinoResult({ login }: { login: string }) {
   return (
     <section className="result">
       <div className="card-side">
-        <DinoCardSVG dino={dino} username={user.login} displayName={user.name ?? user.login} />
+        <DinoCardSVG dino={dino} user={user} />
         <div className="actions">
           <button type="button" className="primary" onClick={() => downloadCardPng(user.login)}>
             카드 저장
@@ -156,6 +158,8 @@ function DinoResult({ login }: { login: string }) {
             <em>{stats.languageCount}개</em> 주요 언어
           </li>
         </ul>
+
+        <RepoList user={user} />
       </div>
     </section>
   );

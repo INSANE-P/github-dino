@@ -1,10 +1,21 @@
+import { graphql, useFragment } from "react-relay";
+import type { DinoCard_user$key } from "./__generated__/DinoCard_user.graphql";
 import { DinoArt } from "./DinoArt";
 import type { Dino } from "./dinos";
 
 /*
   결과 카드. 화면 표시와 PNG 저장이 같은 SVG를 쓴다.
   (DOM을 이미지로 바꾸는 라이브러리 없이, SVG 직렬화 → canvas로 내보낸다)
+
+  03장 실습: 카드가 표시할 사용자 필드는 이 fragment가 선언한다.
+  부모는 fragment 참조만 넘기고, 무엇을 읽는지는 카드만 안다.
 */
+const cardFragment = graphql`
+  fragment DinoCard_user on User {
+    login
+    name
+  }
+`;
 
 const W = 360;
 const H = 460;
@@ -17,15 +28,10 @@ function splitTwoLines(text: string, max = 22): string[] {
   return [text.slice(0, at).trim(), text.slice(at).trim()];
 }
 
-export function DinoCardSVG({
-  dino,
-  username,
-  displayName,
-}: {
-  dino: Dino;
-  username: string;
-  displayName: string;
-}) {
+export function DinoCardSVG({ dino, user }: { dino: Dino; user: DinoCard_user$key }) {
+  const { login, name } = useFragment(cardFragment, user);
+  const username = login;
+  const displayName = name ?? login;
   const traitLines = splitTwoLines(dino.trait);
   return (
     <svg
